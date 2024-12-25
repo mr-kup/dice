@@ -3,10 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"math/rand"
-	"strconv"
-
 	"github.com/kriskiddell/plog"
+	"math/rand"
+	"slices"
+	"strconv"
 )
 
 type rollResult struct {
@@ -17,7 +17,7 @@ type rollResult struct {
 }
 
 func main() {
-	roll_result, err := rollWithModifier(4, -1, 1)
+	roll_result, err := rollWithModifier(3, 6, 0, true, 6)
 	if err != nil {
 		plog.Error.Println(err)
 	}
@@ -56,38 +56,59 @@ func rollDice(number int, sides int) ([]int, error) {
 	return results, nil
 }
 
-func rollWithModifier(number int, sides int, mod int) (rollResult, error) {
+func rollWithModifier(number int, sides int, drop int, highest bool, mod int) (rollResult, error) {
+	if drop >= number {
+		return rollResult{}, errors.New("Dropping more dice than we are rolling.")
+	}
+
 	results, err := rollDice(number, sides)
 	if err != nil {
 		return rollResult{}, err
 	}
 
-	result := 0
-	result_string := fmt.Sprintf("%dd%d(", number, sides)
+	sortedResults := slices.Clone(results) // Clone to avoid mutating the original
+	slices.Sort(sortedResults)
+
+	var dropped []int
+	if highest {
+		dropped = sortedResults[len(sortedResults)-drop:]
+	} else {
+		dropped = sortedResults[:drop]
+	}
+
+	total := 0
+	resultString := fmt.Sprintf("Rolling %dd%d%+d", number, sides, mod)
+
+	if drop > 0 {
+		resultString += fmt.Sprintf(" drop %s %d", map[bool]string{true: "highest", false: "lowest"}[highest], drop)
+	}
+
+	resultString += ":\n ("
+
 	for i, r := range results {
-		result += r
-		result_string += strconv.Itoa(r)
-		if i < len(results)-1 {
-			result_string += " + "
+		if slices.Contains(dropped, r) {
+			resultString += fmt.Sprintf("!%d", r)                                                  // Mark dropped dice
+			dropped = slices.Delete(dropped, slices.Index(dropped, r), slices.Index(dropped, r)+1) // Remove one occurrence
 		} else {
-			result_string += ")"
+			total += r
+			resultString += strconv.Itoa(r)
+		}
+		if i < len(results)-1 {
+			resultString += " + "
 		}
 	}
+	resultString += ")"
 
 	if mod != 0 {
-		result += mod
-		result_string += fmt.Sprintf("%+d ", mod)
+		total += mod
+		resultString += fmt.Sprintf("%+d", mod)
 	}
+	resultString += fmt.Sprintf(" = %d", total)
 
-	result_string += fmt.Sprintf("= %d", result)
-
-	rollResult := rollResult{
+	return rollResult{
 		DiceRolls:    results,
 		Modifier:     mod,
-		Total:        result,
-		ResultString: result_string,
-	}
-
-	return rollResult, nil
-
+		Total:        total,
+		ResultString: resultString,
+	}, nil
 }
