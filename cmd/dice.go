@@ -17,7 +17,7 @@ type rollResult struct {
 }
 
 func main() {
-	roll_result, err := rollWithModifier(2, 2, 1)
+	roll_result, err := rollWithModifier(4, -1, 1)
 	if err != nil {
 		plog.Error.Println(err)
 	}
@@ -41,10 +41,6 @@ func rollDice(number int, sides int) ([]int, error) {
 
 	if number < 1 || number > 1000 {
 		return nil, errors.New("Invalid number of dice.")
-	}
-
-	if sides < 1 || sides > 1000 {
-		return nil, errors.New("Invalid number of sides.")
 	}
 
 	results := make([]int, number)
