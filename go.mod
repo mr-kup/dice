@@ -1,4 +1,4 @@
-module dice
+module github.com/mr-kup/dice
 
 go 1.22.5
 
