@@ -1,4 +1,4 @@
-package main
+package dice
 
 import (
 	"errors"
@@ -17,24 +17,6 @@ type rollResult struct {
 	Modifier     int
 	ResultString string
 	Total        int
-}
-
-func main() {
-	// roll_result, err := rollWithModifier(1, 6, 0, false, 2)
-	// if err != nil {
-	// 	plog.Error.Println(err)
-	// }
-	//
-	// fmt.Print(roll_result.ResultString)
-
-	res, err := parseRollString("2d20 d1 +6")
-
-	if err != nil {
-		plog.Error.Fatalln(err)
-	}
-
-	plog.Info.Println(res.ResultString)
-
 }
 
 func rollDie(sides int) (int, error) {
@@ -67,7 +49,7 @@ func rollDice(number int, sides int) ([]int, error) {
 	return results, nil
 }
 
-func rollWithModifier(number int, sides int, drop int, highest bool, mod int) (rollResult, error) {
+func RollWithModifier(number int, sides int, drop int, highest bool, mod int) (rollResult, error) {
 
 	if drop >= number {
 		return rollResult{}, errors.New("Dropping more dice than we are rolling.")
@@ -133,16 +115,16 @@ func parseRollString(roll string) (rollResult, error) {
 	number, err := strconv.Atoi(matches[1])
 
 	if err != nil {
-		return rollResult{}, errors.New(fmt.Sprintf("Unable to parse number of dice: ", err))
+		return rollResult{}, errors.New(fmt.Sprintf("Unable to parse number of dice: %s", err))
 	}
 
 	sides, err := strconv.Atoi(strings.Split(matches[2], "d")[1])
 	if err != nil {
-		return rollResult{}, errors.New(fmt.Sprintf("Unable to parse number of sides: ", err))
+		return rollResult{}, errors.New(fmt.Sprintf("Unable to parse number of sides: %s", err))
 	}
 
 	plog.Info.Println(matches[3])
 
-	return rollWithModifier(number, sides, 0, false, 0)
+	return RollWithModifier(number, sides, 0, false, 0)
 
 }

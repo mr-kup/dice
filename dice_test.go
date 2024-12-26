@@ -1,4 +1,4 @@
-package main
+package dice
 
 import (
 	"testing"
@@ -65,7 +65,7 @@ func TestRollDiceWithModifier(t *testing.T) {
 	number, sides, mod := 2, 20, 5
 
 	for range 1000 {
-		result, _ := rollWithModifier(number, sides, mod)
+		result, _ := RollWithModifier(number, sides, 0, false, mod)
 		if result.Total < number+mod || result.Total > (number*sides)+mod {
 			t.Errorf("result out of range")
 		}
