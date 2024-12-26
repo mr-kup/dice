@@ -60,7 +60,7 @@ func RollWithModifier(number int, sides int, drop int, highest bool, mod int) (r
 		return rollResult{}, err
 	}
 
-	sortedResults := slices.Clone(results) // Clone to avoid mutating the original
+	sortedResults := slices.Clone(results)
 	slices.Sort(sortedResults)
 
 	var dropped []int
