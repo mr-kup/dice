@@ -107,7 +107,7 @@ func RollWithModifier(number int, sides int, drop int, highest bool, mod int) (r
 	}, nil
 }
 
-func parseRollString(roll string) (rollResult, error) {
+func ParseRollString(roll string) (rollResult, error) {
 	roll = strings.ReplaceAll(roll, " ", "")
 	re := regexp.MustCompile(`(\d+)(d\d+)?(d\d+)?([+-]\d+)?`)
 	matches := re.FindStringSubmatch(roll)
@@ -122,8 +122,6 @@ func parseRollString(roll string) (rollResult, error) {
 	if err != nil {
 		return rollResult{}, errors.New(fmt.Sprintf("Unable to parse number of sides: %s", err))
 	}
-
-	plog.Info.Println(matches[3])
 
 	return RollWithModifier(number, sides, 0, false, 0)
 
