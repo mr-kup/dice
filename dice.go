@@ -8,8 +8,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-
-	"github.com/kriskiddell/plog"
 )
 
 type rollResult struct {
