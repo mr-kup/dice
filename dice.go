@@ -106,21 +106,43 @@ func RollWithModifier(number int, sides int, drop int, highest bool, mod int) (r
 }
 
 func ParseRollString(roll string) (rollResult, error) {
-	roll = strings.ReplaceAll(roll, " ", "")
-	re := regexp.MustCompile(`(\d+)(d\d+)?(d\d+)?([+-]\d+)?`)
+	roll = strings.ToLower(strings.ReplaceAll(roll, " ", "")) // examples: d20, 2d20+1, d20d1
+	re := regexp.MustCompile(`^(\d+)?d(\d+)([kd]\d+)?([+-]\d+)?$`)
 	matches := re.FindStringSubmatch(roll)
 
-	number, err := strconv.Atoi(matches[1])
-
-	if err != nil {
-		return rollResult{}, errors.New(fmt.Sprintf("Unable to parse number of dice: %s", err))
+	if len(matches) == 0 {
+		return rollResult{}, errors.New("Malformed roll string.")
 	}
 
-	sides, err := strconv.Atoi(strings.Split(matches[2], "d")[1])
-	if err != nil {
-		return rollResult{}, errors.New(fmt.Sprintf("Unable to parse number of sides: %s", err))
+	number := 1
+	drop := 0
+	highest := false
+	mod := 0
+	var err error
+
+	if matches[1] != "" {
+		number, err = strconv.Atoi(matches[1])
+		if err != nil {
+			number = 1
+		}
 	}
 
-	return RollWithModifier(number, sides, 0, false, 0)
+	sides, err := strconv.Atoi(matches[2])
+
+	highest = matches[3][:1] == "k"
+
+	drop, err = strconv.Atoi(strings.Split(matches[3], matches[3][:1])[1])
+
+	if err != nil {
+		drop = 0
+	}
+
+	mod, err = strconv.Atoi(matches[4])
+
+	if err != nil {
+		mod = 0
+	}
+
+	return RollWithModifier(number, sides, drop, highest, mod)
 
 }
