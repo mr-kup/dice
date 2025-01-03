@@ -131,9 +131,8 @@ func ParseRollString(roll string) (rollResult, error) {
 
 	if matches[3] != "" {
 		highest = matches[3][:1] == "k"
+		drop, err = strconv.Atoi(strings.Split(matches[3], matches[3][:1])[1])
 	}
-
-	drop, err = strconv.Atoi(strings.Split(matches[3], matches[3][:1])[1])
 
 	if err != nil {
 		drop = 0
