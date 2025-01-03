@@ -129,7 +129,9 @@ func ParseRollString(roll string) (rollResult, error) {
 
 	sides, err := strconv.Atoi(matches[2])
 
-	highest = matches[3][:1] == "k"
+	if matches[3] != "" {
+		highest = matches[3][:1] == "k"
+	}
 
 	drop, err = strconv.Atoi(strings.Split(matches[3], matches[3][:1])[1])
 
